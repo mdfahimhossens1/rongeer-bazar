@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, createContext, useRef } from "react";
+import { useState, useContext, createContext } from "react";
 
 // ── FONTS ─────────────────────────────────────────────────────────────────────
 const Fonts = () => <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@400;600;700;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />;
@@ -41,7 +41,7 @@ const DARK  = { bg:"#0f0f0f", card:"#1a1a1a", border:"#2a2a2a", text:"#f0ede8", 
 export default function App() {
   const [dark, setDark] = useState(false);
   const [lang, setLang] = useState("bn");
-  const [page, setPage] = useState("home"); // home | product | cart | checkout | orders | auth
+  const [page, setPage] = useState("home");
   const [user, setUser] = useState(null);
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
@@ -116,8 +116,7 @@ export default function App() {
 
 // ── NAVBAR ────────────────────────────────────────────────────────────────────
 function Navbar() {
-  const { th, dark, setDark, lang, setLang, page, setPage, user, cartCount, wishlist } = useContext(AppCtx);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { th, dark, setDark, lang, setLang, page, setPage, user, cartCount } = useContext(AppCtx);
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
@@ -193,7 +192,7 @@ function SearchBar({ onClose }) {
             <div key={p.id} onClick={()=>{setSelectedProduct(p);setPage("product");onClose();}} style={{ display:"flex", gap:10, padding:"10px 14px", cursor:"pointer", borderBottom:`1px solid ${th.border}` }}
               onMouseEnter={e=>e.currentTarget.style.background=th.input}
               onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-              <img src={p.image} style={{ width:36, height:36, objectFit:"cover", borderRadius:6 }} />
+              <img src={p.image} alt={lang==="bn"?p.nameBn:p.nameEn} style={{ width:36, height:36, objectFit:"cover", borderRadius:6 }} />
               <div>
                 <div style={{ fontSize:13, fontWeight:600, color:th.text }}>{lang==="bn"?p.nameBn:p.nameEn}</div>
                 <div style={{ fontSize:12, color:th.accent, fontWeight:700 }}>৳{p.price}</div>
@@ -359,7 +358,7 @@ function ProductCard({ product: p, big }) {
   return (
     <div className="product-card" style={{ background:th.card, border:`1px solid ${th.border}`, borderRadius:16, overflow:"hidden", cursor:"pointer", transition:"all 0.25s", position:"relative" }}>
       <div style={{ position:"relative", overflow:"hidden" }} onClick={()=>{setSelectedProduct(p);setPage("product");}}>
-        <img src={p.image} alt="" style={{ width:"100%", height:big?260:200, objectFit:"cover", display:"block", transition:"transform 0.3s" }}
+        <img src={p.image} alt={lang==="bn"?p.nameBn:p.nameEn} style={{ width:"100%", height:big?260:200, objectFit:"cover", display:"block", transition:"transform 0.3s" }}
           onMouseEnter={e=>e.currentTarget.style.transform="scale(1.05)"}
           onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"} />
         <div style={{ position:"absolute", top:10, left:10, display:"flex", flexDirection:"column", gap:6 }}>
@@ -396,7 +395,7 @@ function ProductCard({ product: p, big }) {
 
 // ── PRODUCT PAGE ──────────────────────────────────────────────────────────────
 function ProductPage() {
-  const { th, lang, selectedProduct: p, addToCart, setPage, wishlist, toggleWishlist, setSelectedProduct } = useContext(AppCtx);
+  const { th, lang, selectedProduct: p, addToCart, setPage, wishlist, toggleWishlist } = useContext(AppCtx);
   const [qty, setQty] = useState(1);
   const [selSize, setSelSize] = useState(p.sizes[0]);
   const [selColor, setSelColor] = useState(p.colors[0]);
@@ -412,10 +411,10 @@ function ProductPage() {
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:40 }}>
         {/* Images */}
         <div>
-          <img src={p.images[activeImg]} style={{ width:"100%", height:460, objectFit:"cover", borderRadius:16, marginBottom:12 }} />
+          <img src={p.images[activeImg]} alt={lang==="bn"?p.nameBn:p.nameEn} style={{ width:"100%", height:460, objectFit:"cover", borderRadius:16, marginBottom:12 }} />
           <div style={{ display:"flex", gap:10 }}>
             {p.images.map((img,i) => (
-              <img key={i} src={img} onClick={()=>setActiveImg(i)} style={{ width:72, height:72, objectFit:"cover", borderRadius:8, cursor:"pointer", border:`2.5px solid ${activeImg===i?th.accent:th.border}` }} />
+              <img key={i} src={img} alt={`${lang==="bn"?p.nameBn:p.nameEn} view ${i+1}`} onClick={()=>setActiveImg(i)} style={{ width:72, height:72, objectFit:"cover", borderRadius:8, cursor:"pointer", border:`2.5px solid ${activeImg===i?th.accent:th.border}` }} />
             ))}
           </div>
         </div>
@@ -449,7 +448,7 @@ function ProductPage() {
             <div style={{ fontSize:13, fontWeight:700, marginBottom:8, color:th.text }}>{lang==="bn"?"রং বেছে নিন":"Select Color"}</div>
             <div style={{ display:"flex", gap:10 }}>
               {p.colors.map(c => (
-                <button key={c} onClick={()=>setSelColor(c)} style={{ width:28, height:28, borderRadius:"50%", background:c, border:`3px solid ${selColor===c?th.accent:"transparent"}`, cursor:"pointer", outline:`2px solid ${selColor===c?th.accent:"transparent"}`, outlineOffset:2 }} />
+                <button key={c} onClick={()=>setSelColor(c)} style={{ width:28, height:28, borderRadius:"50%", background:c, border:`3px solid ${selColor===c?th.accent:"transparent"}`, cursor:"pointer", outline:`2px solid ${selColor===c?th.accent:"transparent"}`, outlineOffset:2 }} aria-label={`Color ${c}`} />
               ))}
             </div>
           </div>
@@ -529,7 +528,7 @@ function CartPage() {
         <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
           {cart.map(item => (
             <div key={item.key} style={{ background:th.card, border:`1px solid ${th.border}`, borderRadius:16, padding:16, display:"flex", gap:16, alignItems:"center" }}>
-              <img src={item.image} style={{ width:80, height:80, objectFit:"cover", borderRadius:10, flexShrink:0 }} />
+              <img src={item.image} alt={lang==="bn"?item.nameBn:item.nameEn} style={{ width:80, height:80, objectFit:"cover", borderRadius:10, flexShrink:0 }} />
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ fontSize:15, fontWeight:700, color:th.text, marginBottom:4 }}>{lang==="bn"?item.nameBn:item.nameEn}</div>
                 <div style={{ fontSize:12, color:th.muted, marginBottom:8 }}>{lang==="bn"?"সাইজ":"Size"}: {item.size} • {lang==="bn"?"রং":"Color"}: <span style={{ display:"inline-block", width:14, height:14, borderRadius:"50%", background:item.color, verticalAlign:"middle" }} /></div>
@@ -579,7 +578,7 @@ function CartPage() {
 // ── CHECKOUT PAGE ─────────────────────────────────────────────────────────────
 function CheckoutPage() {
   const { th, lang, cart, cartTotal, setPage, user, setOrders, showToast } = useContext(AppCtx);
-  const [step, setStep] = useState(1); // 1=shipping, 2=payment, 3=confirm
+  const [step, setStep] = useState(1);
   const [payMethod, setPayMethod] = useState("bkash");
   const [mobileNum, setMobileNum] = useState("");
   const [txnId, setTxnId] = useState("");
@@ -706,7 +705,7 @@ function CheckoutPage() {
           <h4 style={{ fontSize:14, fontWeight:700, color:th.text, marginBottom:14 }}>{lang==="bn"?"অর্ডার সারসংক্ষেপ":"Order Summary"}</h4>
           {cart.map(item => (
             <div key={item.key} style={{ display:"flex", gap:10, marginBottom:10, alignItems:"center" }}>
-              <img src={item.image} style={{ width:44, height:44, objectFit:"cover", borderRadius:6, flexShrink:0 }} />
+              <img src={item.image} alt={lang==="bn"?item.nameBn:item.nameEn} style={{ width:44, height:44, objectFit:"cover", borderRadius:6, flexShrink:0 }} />
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ fontSize:12, fontWeight:600, color:th.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{lang==="bn"?item.nameBn:item.nameEn}</div>
                 <div style={{ fontSize:11, color:th.muted }}>×{item.qty}</div>
@@ -764,7 +763,7 @@ function OrdersPage() {
           <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
             {order.items.map((item,i) => (
               <div key={i} style={{ display:"flex", gap:8, alignItems:"center", background:th.input, borderRadius:10, padding:"8px 12px" }}>
-                <img src={item.image} style={{ width:36, height:36, objectFit:"cover", borderRadius:6 }} />
+                <img src={item.image} alt={lang==="bn"?item.nameBn:item.nameEn} style={{ width:36, height:36, objectFit:"cover", borderRadius:6 }} />
                 <div>
                   <div style={{ fontSize:12, fontWeight:600, color:th.text }}>{lang==="bn"?item.nameBn:item.nameEn}</div>
                   <div style={{ fontSize:11, color:th.muted }}>×{item.qty} • {fmt(item.price,lang)}</div>
